@@ -5,18 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>小二造句練習</title>
     <style>
+        /* */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", sans-serif;
-            max-width: 600px;
+            display: flex;
+            max-width: 900px; /* 擴大整體寬度 */
             margin: 40px auto;
-            padding: 20px;
             background-color: #f9f9f9;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 20px;
         }
+
+        #sidebar {
+            width: 220px; /* 側邊欄寬度 */
+            padding-right: 20px;
+            border-right: 1px solid #eee;
+        }
+
+        #sidebar h2 {
+            font-size: 18px;
+            color: #333;
+            margin-top: 0;
+        }
+
+        #sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #sidebar li {
+            margin-bottom: 10px;
+        }
+
+        .sentence-example {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            font-size: 16px;
+            text-align: left;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .sentence-example:hover {
+            background-color: #f0f7ff;
+            border-color: #007bff;
+        }
+
+        #main-content {
+            flex-grow: 1; /* 佔滿剩下寬度 */
+            padding-left: 20px;
+            width: 600px; /* 保持主要內容寬度 */
+        }
+        /* */
+
+
+        /* --- 舊 CSS (來自您的原檔案) --- */
         h1 {
             color: #333;
             text-align: center;
+            margin-top: 0;
         }
         #input-container {
             display: flex;
@@ -68,40 +121,51 @@
 </head>
 <body>
 
-    <h1>小二造句練習</h1>
-    <p>請輸入句型關鍵字，例如：「除了...也...」或「一...就...」</p>
-
-    <div id="input-container">
-        <input type="text" id="keywordInput" placeholder="輸入關鍵字...">
-        <button id="generateButton">產生造句</button>
+    <div id="sidebar">
+        <h2>常見句型範例</h2>
+        <ul>
+            <li><button class="sentence-example">一邊...一邊...</button></li>
+            <li><button class="sentence-example">不但...也...</button></li>
+            <li><button class="sentence-example">只要...就...</button></li>
+            <li><button class="sentence-example">只好...</button></li>
+            <li><button class="sentence-example">先...再...</button></li>
+            <li><button class="sentence-example">因為...所以...</button></li>
+            <li><button class="sentence-example">如果...就...</button></li>
+            <li><button class="sentence-example">於是...</button></li>
+            <li><button class="sentence-example">既...也...</button></li>
+            <li><button class="sentence-example">除了...也...</button></li>
+            <li><button class="sentence-example">連...都...</button></li>
+            <li><button class="sentence-example">越...越...</button></li>
+            <li><button class="sentence-example">當...的時候...</button></li>
+        </ul>
     </div>
+    <div id="main-content">
+        <h1>小二造句練習</h1>
+        <p>請輸入句型關鍵字，或點選左側範例：</p>
 
-    <div id="results">
+        <div id="input-container">
+            <input type="text" id="keywordInput" placeholder="輸入關鍵字...">
+            <button id="generateButton">產生造句</button>
         </div>
+
+        <div id="results">
+            </div>
+    </div>
 
     <script>
         // ----------------------------------------------------
         // ！！請將這裡換成您 n8n Webhook 的 Production URL！！
         // ----------------------------------------------------
-        const N8N_WEBHOOK_URL = 'https://ronnie5328.zeabur.app/webhook-test/431b084d-26fd-469c-989c-02e8951d855e'; 
+        const N8N_WEBHOOK_URL = 'https://ronnie5328.zeabur.app/webhook/eb8a7594-43d4-4254-82a6-fdc64605016d'; 
         // ----------------------------------------------------
 
         const keywordInput = document.getElementById('keywordInput');
         const generateButton = document.getElementById('generateButton');
         const resultsDiv = document.getElementById('results');
 
-        // 按下按鈕時觸發
-        generateButton.addEventListener('click', generateSentences);
-
-        // 按下 Enter 也能觸發
-        keywordInput.addEventListener('keyup', function(event) {
-            if (event.key === 'Enter') {
-                generateSentences();
-            }
-        });
-
-        async function generateSentences() {
-            const keyword = keywordInput.value.trim();
+        // // 1. 將核心的 fetch 邏輯抽出來，變成一個可以重複呼叫的函式
+        // ----------------------------------------------------
+        async function fetchAndDisplaySentences(keyword) {
             if (!keyword) {
                 alert('請先輸入關鍵字！');
                 return;
@@ -126,7 +190,7 @@
                 if (!response.ok) {
                     throw new Error('網路或伺服器錯誤：' + response.status);
                 }
-
+                
                 // 這裡我們會收到 n8n 回傳的 JSON 陣列
                 const sentences = await response.json(); 
 
@@ -150,13 +214,44 @@
             } catch (error) {
                 console.error('Fetch 錯誤:', error);
                 resultsDiv.innerHTML = `<p class="loading" style="color: red;">發生錯誤：${error.message}</p>`;
+                
+                // 檢查是否為 JSON 解析錯誤 (代表 AI 回傳了 ```json 標籤)
+                if (error instanceof SyntaxError && error.message.includes("Unexpected token")) {
+                    resultsDiv.innerHTML = `<p class="loading" style="color: red;"><b>發生程式錯誤：</b>AI 回傳了無法解析的格式 (可能是 Markdown 標籤)。<br>請檢查 n8n 的 Code 節點是否有正確移除 \`\`\`json \`\`\` 標籤。</p>`;
+                }
             } finally {
                 // 重新啟用按鈕
                 generateButton.disabled = false;
                 generateButton.textContent = '產生造句';
             }
         }
-    </script>
+
+        // 2. 讓「產生造句」按鈕呼叫這個新函式
+        // ----------------------------------------------------
+        generateButton.addEventListener('click', () => {
+            const keyword = keywordInput.value.trim();
+            fetchAndDisplaySentences(keyword);
+        });
+        
+        // 3. 讓鍵盤 Enter 也能呼叫
+        // ----------------------------------------------------
+        keywordInput.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                const keyword = keywordInput.value.trim();
+                fetchAndDisplaySentences(keyword);
+            }
+        });
+
+        // 4. 幫所有「側邊欄」的範例按鈕加上點擊功能
+        // ----------------------------------------------------
+        document.querySelectorAll('.sentence-example').forEach(button => {
+            button.addEventListener('click', () => {
+                const keyword = button.textContent; // 抓取按鈕上的文字
+                keywordInput.value = keyword; // 幫使用者填入輸入框
+                fetchAndDisplaySentences(keyword); // 直接呼叫核心函式
+            });
+        });
+        // </script>
 
 </body>
 </html>
