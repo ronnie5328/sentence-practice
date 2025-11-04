@@ -5,28 +5,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>小二造句練習</title>
     <style>
-        /* */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", sans-serif;
-            display: flex;
-            max-width: 900px; /* 擴大整體寬度 */
-            margin: 40px auto;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            padding: 20px;
+        /* --- NEW CSS (v4 - 美化版) --- */
+        :root {
+            --primary-color: #007bff;
+            --light-blue: #e6f7ff;
+            --bg-color: #f4f7f6; /* 柔和的背景色 */
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --text-light: #666;
+            --border-color: #ddd;
+            --shadow: 0 4px 12px rgba(0,0,0,0.06); /* 更柔和的陰影 */
         }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px; /* 擴大整體寬度 */
+        }
+
+        /* 參考 inspiration 網站的美化標題 */
+        header {
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            color: var(--text-color);
+            margin: 0;
+            font-size: 2.2em;
+        }
+
+        header p {
+            font-size: 1.1em;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+
+        .content-wrapper {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start; /* 讓側邊欄和主內容頂部對齊 */
+        }
+
+        /* 側邊欄卡片 */
         #sidebar {
-            width: 220px; /* 側邊欄寬度 */
-            padding-right: 20px;
-            border-right: 1px solid #eee;
+            width: 250px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            height: fit-content; /* 高度自適應內容 */
+            flex-shrink: 0; /* 防止側邊欄被壓縮 */
         }
 
         #sidebar h2 {
-            font-size: 18px;
-            color: #333;
+            font-size: 1.2em;
+            color: var(--text-color);
             margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
         }
 
         #sidebar ul {
@@ -36,123 +83,170 @@
         }
 
         #sidebar li {
-            margin-bottom: 10px;
+            margin-bottom: 8px; /* 縮小按鈕間距 */
         }
 
+        /* 側邊欄按鈕美化 */
         .sentence-example {
             display: block;
             width: 100%;
             padding: 10px 15px;
             font-size: 16px;
             text-align: left;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            background-color: #f9f9f9;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.2s, border-color 0.2s;
+            transition: all 0.2s ease-in-out;
         }
 
         .sentence-example:hover {
-            background-color: #f0f7ff;
-            border-color: #007bff;
+            background-color: var(--light-blue);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-2px); /* 輕微上浮 */
         }
 
+        /* 主內容卡片 */
         #main-content {
             flex-grow: 1; /* 佔滿剩下寬度 */
-            padding-left: 20px;
-            width: 600px; /* 保持主要內容寬度 */
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 25px 30px; /* 增加內邊距 */
         }
-        /* */
-
-
-        /* --- 舊 CSS (來自您的原檔案) --- */
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-top: 0;
-        }
+        
         #input-container {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
         }
+        
         #keywordInput {
             flex-grow: 1;
             font-size: 16px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            padding: 12px 15px; /* 增加輸入框高度 */
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
         }
+
+        /* 按鈕美化 */
         #generateButton {
             font-size: 16px;
-            padding: 10px 15px;
-            background-color: #007bff;
+            padding: 12px 20px;
+            background-color: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.2s;
         }
+
+        #generateButton:hover {
+            background-color: #0056b3; /* 按鈕變深色 */
+        }
+
         #generateButton:disabled {
             background-color: #aaa;
             cursor: not-allowed;
         }
+        
         #results {
             margin-top: 20px;
-            background-color: #fff;
-            padding: 10px;
-            border-radius: 4px;
+            background-color: #fdfdfd;
+            padding: 20px;
+            border-radius: 5px;
             border: 1px solid #eee;
+            border-top: 3px solid var(--primary-color); /* 頂部主題色條 */
+            min-height: 150px; /* 確保結果區有一定高度 */
         }
+        
         .sentence {
-            padding: 8px;
+            padding: 10px 5px;
             border-bottom: 1px dashed #eee;
             font-size: 18px;
-            line-height: 1.6;
+            line-height: 1.7;
         }
+
         .sentence:last-child {
             border-bottom: none;
         }
+        
         .loading {
             text-align: center;
             font-style: italic;
-            color: #888;
+            color: var(--text-light);
+            padding: 40px 0;
         }
+
+        /* 響應式設計：小螢幕時改為垂直排列 */
+        @media (max-width: 768px) {
+            .content-wrapper {
+                flex-direction: column;
+            }
+            #sidebar {
+                width: 100%;
+                box-sizing: border-box; /* 確保 padding 不會讓寬度溢出 */
+                height: auto;
+            }
+            #main-content {
+                width: 100%;
+                box-sizing: border-box;
+            }
+            body {
+                padding: 10px;
+            }
+        }
+        /* --- CSS END --- */
     </style>
 </head>
 <body>
 
-    <div id="sidebar">
-        <h2>常見句型範例</h2>
-        <ul>
-            <li><button class="sentence-example">一邊...一邊...</button></li>
-            <li><button class="sentence-example">不但...也...</button></li>
-            <li><button class="sentence-example">只要...就...</button></li>
-            <li><button class="sentence-example">只好...</button></li>
-            <li><button class="sentence-example">先...再...</button></li>
-            <li><button class="sentence-example">因為...所以...</button></li>
-            <li><button class="sentence-example">如果...就...</button></li>
-            <li><button class="sentence-example">於是...</button></li>
-            <li><button class="sentence-example">既...也...</button></li>
-            <li><button class="sentence-example">除了...也...</button></li>
-            <li><button class="sentence-example">連...都...</button></li>
-            <li><button class="sentence-example">越...越...</button></li>
-            <li><button class="sentence-example">當...的時候...</button></li>
-        </ul>
-    </div>
-    <div id="main-content">
-        <h1>小二造句練習</h1>
-        <p>請輸入句型關鍵字，或點選左側範例：</p>
+    <div class="container">
 
-        <div id="input-container">
-            <input type="text" id="keywordInput" placeholder="輸入關鍵字...">
-            <button id="generateButton">產生造句</button>
-        </div>
+        <header>
+            <h1>AI 造句練習</h1>
+            <p>為小二學生設計的句型產生器</p>
+        </header>
 
-        <div id="results">
+        <div class="content-wrapper">
+
+            <div id="sidebar">
+                <h2>常見句型 (依筆畫)</h2>
+                <ul>
+                    <li><button class="sentence-example">一...就...</button></li>
+                    <li><button class="sentence-example">一邊...一邊...</button></li>
+                    <li><button class="sentence-example">不但...也...</button></li>
+                    <li><button class="sentence-example">只要...就...</button></li>
+                    <li><button class="sentence-example">只好...</button></li>
+                    <li><button class="sentence-example">先...再...</button></li>
+                    <li><button class="sentence-example">因為...所以...</button></li>
+                    <li><button class="sentence-example">如果...就...</button></li>
+                    <li><button class="sentence-example">有...，有...，還有...</button></li>
+                    <li><button class="sentence-example">有的...，有的...</button></li>
+                    <li><button class="sentence-example">於是...</button></li>
+                    <li><button class="sentence-example">既...也...</button></li>
+                    <li><button class="sentence-example">除了...也...</button></li>
+                    <li><button class="sentence-example">連...都...</button></li>
+                    <li><button class="sentence-example">越...越...</button></li>
+                    <li><button class="sentence-example">當...的時候...</button></li>
+                    <li><button class="sentence-example">雖然...但是...</button></li>
+                </ul>
             </div>
-    </div>
+            
+            <div id="main-content">
+                <p style="margin-top: 0; font-size: 1.1em; color: var(--text-light);">請輸入句型關鍵字，或點選左側範例：</p>
 
-    <script>
+                <div id="input-container">
+                    <input type="text" id="keywordInput" placeholder="輸入關鍵字...">
+                    <button id="generateButton">產生造句</button>
+                </div>
+
+                <div id="results">
+                    </div>
+            </div>
+
+        </div> </div> <script>
         // ----------------------------------------------------
         // ！！請將這裡換成您 n8n Webhook 的 Production URL！！
         // ----------------------------------------------------
@@ -238,7 +332,8 @@
         keywordInput.addEventListener('keyup', function(event) {
             if (event.key === 'Enter') {
                 const keyword = keywordInput.value.trim();
-                fetchAndDisplaySentences(keyword);
+                fetchAndDisplaySente
+nces(keyword);
             }
         });
 
